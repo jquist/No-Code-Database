@@ -1,0 +1,54 @@
+image: python:3.10-slim
+
+stages:
+  - test
+  # - deploy
+  - push
+
+run_tests:
+  stage: test
+  
+  script:
+    - cd auth/
+    - python3 --version
+    - pip install -r requirements.txt 
+    - DB_NAME=test_auth_db DB_HOST=test_host DB_USER=test_user DB_PASSWORD=test_pass python manage.py test --settings=auth_project.settings --keepdb
+    
+  rules:
+    - when: always
+
+# deploy_to_server:
+#   stage: deploy
+#   script:
+#     - echo "Deployment confirmed. The code passed Python tests."
+#     - echo "The final image build for deployment must be done by a dedicated runner."
+#   rules:
+#     - if: $CI_COMMIT_BRANCH
+#       changes:
+#         - auth/**/*
+
+push_auth:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    DOCKER_CONFIG: /kaniko/.docker
+  before_script:
+    - |
+      echo "{
+        \"auths\":{
+          \"$CI_REGISTRY\":{
+            \"username\": \"$REGISTRY_USER\",
+            \"password\": \"$REGISTRY_PASSWORD\"
+          }
+        }
+      }" > /kaniko/.docker/config.json
+  script:
+    - |
+      /kaniko/executor \
+        --context "${CI_PROJECT_DIR}/auth" \
+        --dockerfile "${CI_PROJECT_DIR}/auth/Dockerfile" \
+        --destination "${CI_REGISTRY}/${CI_PROJECT_PATH}/auth:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"' 

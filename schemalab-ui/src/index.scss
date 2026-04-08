@@ -1,0 +1,16 @@
+// Used to set global styles. Keep to css reset only.
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body, #root {
+    height: 100%;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    overscroll-behavior: none;
+}

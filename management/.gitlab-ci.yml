@@ -1,0 +1,77 @@
+stages:
+  - deploy
+  - push
+
+trigger_management:
+  image: alpine:3.18
+  stage: deploy
+  script:
+    - echo "Downstream pipeline running. CI_PIPELINE_SOURCE=$CI_PIPELINE_SOURCE"
+  rules:
+    - when: always
+
+deploy:
+  image: python:3.12
+  stage: deploy
+  variables:
+    POSTGRES_DB: ""
+    DJANGO_SETTINGS_MODULE: "management.settings"
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install -r management/requirements.txt
+  script:
+    - cd management
+    - python manage.py migrate --noinput
+    - python manage.py check --deploy || python manage.py check
+    - |-
+      python - <<'PY'
+      import django, sys, os
+      from importlib import import_module
+      try:
+          # ensure settings module present (redundant if set above)
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'management.settings')
+          django.setup()
+          app = import_module('management.wsgi').application
+          print("WSGI application import OK")
+      except Exception as e:
+          print("WSGI import failed:", e)
+          sys.exit(2)
+      PY
+  rules:
+    # Run on merge request pipelines
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    # Run on regular push pipelines (including pushes to main)
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: always
+    # Also run when this pipeline is created by a trigger/parent pipeline or API/web
+    - if: '$CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "pipeline" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "parent_pipeline" || $CI_PIPELINE_SOURCE == "child_pipeline" || $CI_PIPELINE_SOURCE == "external"'
+      when: always
+    # Otherwise do not run
+    - when: never
+
+push_management:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    DOCKER_CONFIG: /kaniko/.docker
+  before_script:
+    - |
+      echo "{
+        \"auths\":{
+          \"$CI_REGISTRY\":{
+            \"username\": \"$REGISTRY_USER\",
+            \"password\": \"$REGISTRY_PASSWORD\"
+          }
+        }
+      }" > /kaniko/.docker/config.json
+  script:
+    - |
+      /kaniko/executor \
+        --context "${CI_PROJECT_DIR}/management" \
+        --dockerfile "${CI_PROJECT_DIR}/management/Dockerfile" \
+        --destination "${CI_REGISTRY}/${CI_PROJECT_PATH}/management:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"' 

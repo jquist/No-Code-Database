@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Use the absolute path to the entrypoint copied into the image so the
+    # host bind-mount does not override it (prevents CRLF / permission issues).
+    command: bash -c "/entrypoint.sh python manage.py runserver 0.0.0.0:6060"
+    volumes:
+      - .:/app
+      - ./media:/app/media
+    ports:
+      - "6060:6060"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+volumes:
+  pgdata:

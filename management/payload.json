@@ -1,0 +1,12 @@
+{
+  "data":{
+    "user": {
+      "id": 123,
+      "projectname": "Yes",
+      "email": "alice@example.com",
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "isAdmin": false
+    }
+  }
+}

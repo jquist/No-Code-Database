@@ -1,0 +1,45 @@
+python -m pip install Django djangorestframework psycopg2-binary  
+docker run --name pg -e POSTGRES_DB=pgdb -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -p 5432:5432 -v pgdata:/var/lib/postgresql/data -d postgres:latest
+install cors
+and auth modules
+python -m pip install django-cors-headers
+python -m pip install python-dotenv
+
+create superuser
+docker-compose exec web python manage.py createsuperuser
+make token
+docker-compose exec web python manage.py shell -c "from django.contrib.auth import get_user_model; from rest_framework.authtoken.models import Token; User=get_user_model(); u=User.objects.get(username='saker'); print(Token.objects.get_or_create(user=u)[0].key)"
+
+$body = Get-Content .\payload.json -Raw
+$headers = @{ "Authorization" = "Token 8c6242d86859c1fc113590c2b5d5d53b4f1422a1" }
+Invoke-RestMethod -Uri 'http://localhost:8000/api/jsonfiles/' -Method Post -Body $body -Headers $headers -ContentType 'application/json'
+
+check if its been posted in DB
+docker-compose exec web python manage.py shell
+
+from mService.models import JSONFile
+print(JSONFile.objects.count())
+for obj in JSONFile.objects.all().order_by('-created_at')[:10]:
+    print(obj.id, obj.created_at, obj.payload)
+
+or
+
+docker exec -it management-db-1 psql -U user -d mydb
+
+\d+ "mService_jsonfile"
+
+SELECT id, payload::text AS payload_text, created_at, client_id
+FROM "mService_jsonfile"
+ORDER BY created_at DESC
+LIMIT 20;
+
+SELECT count(*) FROM "mService_jsonfile";
+
+docker commands:
+docker compose build
+docker compose up -d
+docker compose ps
+
+currently stores duplicates of same client_id which should be fine
+
+curl.exe -v "http://localhost:8000/api/jsonfiles/?client_id=123" -H "Authorization: Token 8c6242d86859c1fc113590c2b5d5d53b4f1422a1"

@@ -1,0 +1,40 @@
+stages:
+  - test
+  - push
+
+test_schema-build:
+  stage: test
+  image: node:20
+  script:
+    - echo "Testing schema-build..."
+    - cd schema
+    - npm install
+    - npm test
+  rules:
+    - when: on_success
+
+push_schema:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    DOCKER_CONFIG: /kaniko/.docker
+  before_script:
+    - |
+      echo "{
+        \"auths\":{
+          \"$CI_REGISTRY\":{
+            \"username\": \"$REGISTRY_USER\",
+            \"password\": \"$REGISTRY_PASSWORD\"
+          }
+        }
+      }" > /kaniko/.docker/config.json
+  script:
+    - |
+      /kaniko/executor \
+        --context "${CI_PROJECT_DIR}/schema" \
+        --dockerfile "${CI_PROJECT_DIR}/schema/Dockerfile" \
+        --destination "${CI_REGISTRY}/${CI_PROJECT_PATH}/schema:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"' 

@@ -1,0 +1,181 @@
+.project-management-page {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    padding: 20px;
+
+    .projects-header {
+        display: flex;
+        background-color: #176b87;
+        color: white;
+        padding: 20px 30px;
+        margin: -20px -20px 20px -20px;
+        justify-content: space-between;
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 500;
+        }
+    }
+
+    .projects-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        align-items: center;
+
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+
+            &.active {
+                background-color: #176b87;
+                color: white;
+                border-color: #176b87;
+            }
+
+            &:hover:not(.active) {
+                border-color: #176b87;
+            }
+        }
+
+        .new-project-btn {
+            margin-left: auto;
+            padding: 10px 20px;
+            background-color: white;
+            border: 1px solid #176b87;
+            color: #176b87;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+
+            &:hover {
+                background-color: #176b87;
+                color: white;
+            }
+        }
+    }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 10px 0;
+    }
+
+    .project-card {
+        background: white;
+        border: 2px solid #176b87;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+            box-shadow: 0 4px 12px rgba(23, 107, 135, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .project-canvas-preview {
+            background-color: #e0e0e0;
+            padding: 0px 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+
+            .canvas-placeholder {
+                color: #666;
+                font-size: 14px;
+            }
+
+            .canvas-miniature {
+                width: 100%;
+                max-width: 200px;
+
+                .mini-diagram {
+                    width: 100%;
+                    height: auto;
+                }
+            }
+        }
+
+        .project-info {
+            padding: 15px 20px;
+
+            .project-name {
+                margin: 0 0 8px 0;
+                font-size: 16px;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .project-description {
+                margin: 0;
+                font-size: 13px;
+                color: #666;
+                line-height: 1.4;
+                display: -webkit-box;
+                line-clamp: 2;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        }
+
+        .project-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px 0 20px;
+
+            .project-name {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .delete-project-btn {
+                color: #ff5451;
+                background: transparent;
+                border: none;
+                border-radius: 12.5%;
+                padding: 6px;
+                display: flex;
+                align-items: center;
+                transition: background 0.2s, border-radius 0.2s;
+
+                svg {
+                    transition: fill 0.2s, stroke 0.2s;
+                }
+
+                &:hover {
+                    color: #222;
+                    background: #ffc8c8; // subtle light red
+                    border-radius: 12.5%;
+                }
+
+            }
+        }
+    }
+
+    .loading {
+        text-align: center;
+        padding: 50px;
+        font-size: 18px;
+        color: #666;
+    }
+
+    .delete-project-btn {
+        position: relative;
+        z-index: 10;
+    }
+}
