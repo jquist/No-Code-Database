@@ -1,10 +1,2 @@
 # No-Code DB
-
-
-## Set up reminder
-In case you don't remember how this is done (:
-
-```
-git clone https://gitlab.surrey.ac.uk/jp01821/no-code-db.git
-```
-Use the vscode git feature to make your life easier after this
+A no-code database tool that enables users to design ER diagrams and automatically generate database schemas. Supports export to formats such as SQL and SQLite, streamlining database design and implementation into a single, efficient workflow.
